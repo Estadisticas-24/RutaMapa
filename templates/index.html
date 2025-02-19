@@ -15,15 +15,13 @@
             </div>
             <button type="submit" class="btn btn-primary">Subir y Generar Mapa</button>
         </form>
-        
-        {% if mapa_file %}
+
+        {% if mapa_html %}
         <div class="mt-4 text-center">
             <h3>Mapa Generado</h3>
-            <iframe src="/mapa" width="100%" height="500px" style="border:none;"></iframe>
+            <div>{{ mapa_html | safe }}</div>
         </div>
         {% endif %}
-        
-        
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>

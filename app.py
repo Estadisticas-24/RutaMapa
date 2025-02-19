@@ -1,14 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
 import pandas as pd
 import folium
-import os
 from io import BytesIO
 
 app = Flask(__name__)
-
-@app.route("/mapa")
-def mostrar_mapa():
-    return render_template("mapa.html")
 
 def extract_lat_lon(gps_column):
     latitudes, longitudes = [], []
@@ -23,9 +18,10 @@ def extract_lat_lon(gps_column):
     return latitudes, longitudes
 
 def generar_mapa(data):
-    df = pd.read_excel(BytesIO(data))  # Leer el archivo directamente desde memoria
+    """Generar el mapa dinámicamente sin guardar archivo HTML."""
+    df = pd.read_excel(BytesIO(data))
 
-    # Procesar coordenadas
+    # Extraer coordenadas
     df["Latitud Cliente"], df["Longitud Cliente"] = extract_lat_lon(df["GPS cliente"])
     df["Latitud Pedido"], df["Longitud Pedido"] = extract_lat_lon(df["GPS pedido"])
     df_valid = df.dropna(subset=["Latitud Cliente", "Longitud Cliente", "Latitud Pedido", "Longitud Pedido"])
@@ -34,6 +30,7 @@ def generar_mapa(data):
     map_center = [df_valid["Latitud Cliente"].mean(), df_valid["Longitud Cliente"].mean()]
     mapa = folium.Map(location=map_center, zoom_start=12, tiles="CartoDB positron")
 
+    # Agregar marcadores y líneas
     for _, row in df_valid.iterrows():
         folium.Marker(
             location=[row["Latitud Cliente"], row["Longitud Cliente"]],
@@ -59,10 +56,10 @@ def generar_mapa(data):
             opacity=0.7
         ).add_to(mapa)
 
-    # Guardar el mapa en memoria
-    mapa_path = os.path.join("templates", "mapa.html")
-    mapa.save(mapa_path)
-    return "mapa.html"
+    # Generar HTML del mapa como string
+    mapa_html = mapa._repr_html_()
+
+    return mapa_html
 
 @app.route("/")
 def index():
@@ -70,6 +67,7 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
+    """Procesar el Excel y mostrar el mapa sin guardar archivo HTML."""
     if "file" not in request.files:
         return "No file part"
     
@@ -80,9 +78,11 @@ def upload_file():
     # Leer el archivo en memoria
     excel_data = file.read()
 
-    # Generar el mapa desde el archivo cargado
-    mapa_file = generar_mapa(excel_data)
-    return render_template("mapa.html", mapa_file=mapa_file)
+    # Generar el mapa dinámicamente
+    mapa_html = generar_mapa(excel_data)
+
+    # Renderizar el HTML del mapa directamente
+    return Response(mapa_html, content_type="text/html")
 
 if __name__ == "__main__":
     app.run(debug=True)

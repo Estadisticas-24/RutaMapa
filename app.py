@@ -2,15 +2,13 @@ from flask import Flask, render_template, request
 import pandas as pd
 import folium
 import os
+from io import BytesIO
 
 app = Flask(__name__)
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route("/mapa")
 def mostrar_mapa():
     return render_template("mapa.html")
-
 
 def extract_lat_lon(gps_column):
     latitudes, longitudes = [], []
@@ -24,15 +22,18 @@ def extract_lat_lon(gps_column):
             longitudes.append(None)
     return latitudes, longitudes
 
-def generar_mapa(file_path):
-    df = pd.read_excel(file_path)
+def generar_mapa(data):
+    df = pd.read_excel(BytesIO(data))  # Leer el archivo directamente desde memoria
+
+    # Procesar coordenadas
     df["Latitud Cliente"], df["Longitud Cliente"] = extract_lat_lon(df["GPS cliente"])
     df["Latitud Pedido"], df["Longitud Pedido"] = extract_lat_lon(df["GPS pedido"])
     df_valid = df.dropna(subset=["Latitud Cliente", "Longitud Cliente", "Latitud Pedido", "Longitud Pedido"])
-    
+
+    # Crear el mapa
     map_center = [df_valid["Latitud Cliente"].mean(), df_valid["Longitud Cliente"].mean()]
     mapa = folium.Map(location=map_center, zoom_start=12, tiles="CartoDB positron")
-    
+
     for _, row in df_valid.iterrows():
         folium.Marker(
             location=[row["Latitud Cliente"], row["Longitud Cliente"]],
@@ -40,14 +41,14 @@ def generar_mapa(file_path):
             tooltip=f"Cliente: {row['NombreClienteCorto']}",
             icon=folium.Icon(color="green", icon="home")
         ).add_to(mapa)
-        
+
         folium.Marker(
             location=[row["Latitud Pedido"], row["Longitud Pedido"]],
             popup=f"Pedido para {row['NombreClienteCorto']}",
             tooltip="Pedido",
             icon=folium.Icon(color="red", icon="shopping-cart")
         ).add_to(mapa)
-        
+
         folium.PolyLine(
             locations=[
                 (row["Latitud Cliente"], row["Longitud Cliente"]),
@@ -57,8 +58,9 @@ def generar_mapa(file_path):
             weight=2.5,
             opacity=0.7
         ).add_to(mapa)
-    
-    mapa_path = os.path.join(UPLOAD_FOLDER, "mapa.html")
+
+    # Guardar el mapa en memoria
+    mapa_path = os.path.join("templates", "mapa.html")
     mapa.save(mapa_path)
     return "mapa.html"
 
@@ -70,12 +72,16 @@ def index():
 def upload_file():
     if "file" not in request.files:
         return "No file part"
+    
     file = request.files["file"]
     if file.filename == "":
         return "No selected file"
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-    file.save(file_path)
-    mapa_file = generar_mapa(file_path)
+    
+    # Leer el archivo en memoria
+    excel_data = file.read()
+
+    # Generar el mapa desde el archivo cargado
+    mapa_file = generar_mapa(excel_data)
     return render_template("mapa.html", mapa_file=mapa_file)
 
 if __name__ == "__main__":

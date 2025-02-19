@@ -1,0 +1,110 @@
+:root {
+    --color-primario: #003366;      
+    --color-secundario: #00b4d8;   
+    --color-bg: #f8f9fa;           
+    --color-text: #212529;         
+    --color-hover: #caf0f8;        
+    --color-borde: #ced4da;         
+    --transition: 0.2s ease-in-out; 
+  }
+  
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  h1, h2, h3 {
+    color: var(--color-primario);
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  
+  .contenedor-principal {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-borde);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  form {
+    margin-top: 1rem;
+  }
+  
+  input[type="file"], input[type="text"], select {
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid var(--color-borde);
+    transition: var(--transition);
+    width: 100%;
+  }
+  input[type="file"]:hover, input[type="text"]:hover, select:hover {
+    background-color: var(--color-hover);
+  }
+  
+  .btn {
+    transition: var(--transition);
+  }
+  .btn:hover {
+    filter: brightness(0.9);
+  }
+  
+  .btn-primario {
+    background-color: var(--color-secundario);
+    color: #fff;
+    border: none;
+  }
+  .btn-primario:hover {
+    background-color: var(--color-primario);
+    color: #fff;
+  }
+  
+  .table {
+    border: 1px solid var(--color-borde);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  .table thead {
+    background-color: var(--color-primario);
+    color: #fff;
+  }
+  .table thead tr th {
+    border: none !important;
+  }
+  .table-bordered th, .table-bordered td {
+    border: 1px solid var(--color-borde) !important;
+  }
+  .table tbody tr {
+    transition: var(--transition);
+  }
+  .table tbody tr:hover {
+    background-color: var(--color-hover);
+  }
+  
+  input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+    accent-color: var(--color-secundario);
+  }
+  
+  .caja-sombreada {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .leaflet-popup-content a:hover {
+    color: var(--color-secundario);
+  }
+  
+  .leaflet-control-layers-list {
+    font-size: 0.9rem;
+  }
+  

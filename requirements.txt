@@ -1,13 +1,6 @@
-<<<<<<< HEAD
 flask
 pandas
 folium
 gunicorn
 openpyxl
-=======
-flask
-pandas
-folium
-gunicorn
-openpyxl
->>>>>>> 1d2c7bf (v02)
+geopy
